@@ -2,7 +2,8 @@
 use green_kernels::traits::Kernel;
 pub(crate) use green_kernels::types::GreenKernelEvalType;
 use ndgrid::traits::Grid;
-use rlst::{Array, BaseArray, MatrixInverse, RlstScalar, VectorContainer};
+use rlst::{Array, BaseArray, MatrixInverse, VectorContainer};
+use rlst::dense::types::RlstScalar;
 
 /// Kernel evaluator
 pub struct KernelEvaluator<T: RlstScalar, K: Kernel<T = T>> {

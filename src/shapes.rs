@@ -6,8 +6,8 @@ use mpi::traits::{Communicator, Equivalence};
 use ndelement::{ciarlet::CiarletElement, types::ReferenceCellType};
 use ndgrid::{
     traits::{Builder, ParallelBuilder},
-    types::RealScalar,
-    ParallelGrid, SingleElementGrid, SingleElementGridBuilder,
+    types::{GraphPartitioner, RealScalar},
+    ParallelGridImpl, SingleElementGrid, SingleElementGridBuilder,
 };
 use num::Float;
 
@@ -20,7 +20,7 @@ pub fn regular_sphere<T: RealScalar + Equivalence, C: Communicator>(
     refinement_level: u32,
     degree: usize,
     comm: &C,
-) -> ParallelGrid<C, SingleElementGrid<T, CiarletElement<T>>> {
+) -> ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>> {
     if comm.rank() == 0 {
         let mut b = SingleElementGridBuilder::new_with_capacity(
             3,
@@ -106,7 +106,7 @@ pub fn regular_sphere<T: RealScalar + Equivalence, C: Communicator>(
             b.add_cell(i, v);
         }
 
-        b.create_parallel_grid_root(comm)
+        b.create_parallel_grid_root(comm, GraphPartitioner::None)
     } else {
         SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, degree))
             .create_parallel_grid(comm, 0)
@@ -120,7 +120,7 @@ pub fn regular_sphere<T: RealScalar + Equivalence, C: Communicator>(
 pub fn screen_triangles<T: RealScalar + Equivalence, C: Communicator>(
     ncells: usize,
     comm: &C,
-) -> ParallelGrid<C, SingleElementGrid<T, CiarletElement<T>>> {
+) -> ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>> {
     if ncells == 0 {
         panic!("Cannot create a grid with 0 cells");
     }
@@ -164,7 +164,7 @@ pub fn screen_triangles<T: RealScalar + Equivalence, C: Communicator>(
             }
         }
 
-        b.create_parallel_grid_root(comm)
+        b.create_parallel_grid_root(comm, GraphPartitioner::None)
     } else {
         SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, 1))
             .create_parallel_grid(comm, 0)
@@ -178,7 +178,7 @@ pub fn screen_triangles<T: RealScalar + Equivalence, C: Communicator>(
 pub fn screen_quadrilaterals<T: RealScalar + Equivalence, C: Communicator>(
     ncells: usize,
     comm: &C,
-) -> ParallelGrid<C, SingleElementGrid<T, CiarletElement<T>>> {
+) -> ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>> {
     if ncells == 0 {
         panic!("Cannot create a grid with 0 cells");
     }
@@ -215,7 +215,7 @@ pub fn screen_quadrilaterals<T: RealScalar + Equivalence, C: Communicator>(
             }
         }
 
-        b.create_parallel_grid_root(comm)
+        b.create_parallel_grid_root(comm, GraphPartitioner::None)
     } else {
         SingleElementGridBuilder::new(3, (ReferenceCellType::Quadrilateral, 1))
             .create_parallel_grid(comm, 0)

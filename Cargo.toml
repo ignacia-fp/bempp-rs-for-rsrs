@@ -1,7 +1,7 @@
 [features]
-sleef = ["rlst/sleef", "green-kernels/sleef", "ndelement/sleef", "ndgrid/sleef"]
 strict = []
-default = ["sleef"]
+default = []
+enable_tracing = ["rlst/enable_tracing", "dep:log"]
 
 [package]
 name = "bempp"
@@ -26,25 +26,31 @@ crate-type = ["lib", "cdylib"]
 
 [dependencies]
 bempp-quadrature = { version = "0.1.0" }
+bempp-distributed-tools = { git = "https://github.com/bempp/distributed_tools.git"}
 itertools = "0.13.*"
-mpi = { version = "0.8.*"}
+mpi = { version = "0.8.*", features = ["complex"]}
 num = "0.4"
-ndelement = { git="https://github.com/bempp/ndelement.git", features = ["mpi"]}
-ndgrid = { git="https://github.com/bempp/ndgrid.git", features = ["serde"] }
-# ndgrid = { path = "../ndgrid" }
+ndelement = { git="https://github.com/bempp/ndelement.git", rev = "c7363aec58d84a91833c00e4ffd25c24c60f2f97", features = ["mpi"]}
+ndgrid = { git="https://github.com/bempp/ndgrid.git", rev = "a116b6c98c1dfd8484f9be452f7844c7722441dd", features = ["serde"] }
+rlst = { git = "https://github.com/linalg-rs/rlst.git", branch = "extend_abstract_operator", features = ["mpi"] }
+green-kernels = { git = "https://github.com/bempp/green-kernels.git", rev = "e01a482f070e09e114f12b2ea1a1b2c1064881bb", features = ["mpi"] }
+kifmm = { git = "https://github.com/bempp/kifmm.git", rev = "f2e34b99c290c66ebed31cc43d2ed2d8ce68831f", features = ["mpi"] }
+rand = "0.8"
+rand_chacha = "0.3"
+log = { version = "0.4", optional = true}
 rayon = "1.9"
-rlst = { git = "https://github.com/linalg-rs/rlst.git", features = ["mpi"] }
-green-kernels = { git = "https://github.com/bempp/green-kernels.git", features = ["mpi"] }
-# c-api-tools = { version = "0.1.0" }
 
 [dev-dependencies]
 approx = "0.5"
 cauchy = "0.4.*"
 criterion = { version = "0.5.*", features = ["html_reports"] }
 # kifmm = { version = "1.0" }
+env_logger = "0.11"
 
 [build-dependencies]
 cbindgen = "0.27.0"
+cc = "=1.2.7"
+
 
 [[bench]]
 name = "assembly_benchmark"
