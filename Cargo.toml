@@ -30,11 +30,11 @@ bempp-distributed-tools = { git = "https://github.com/bempp/distributed_tools.gi
 itertools = "0.13.*"
 mpi = { version = "0.8.*", features = ["complex"]}
 num = "0.4"
-ndelement = { git="https://github.com/bempp/ndelement.git", rev = "c7363aec58d84a91833c00e4ffd25c24c60f2f97", features = ["mpi"]}
-ndgrid = { git="https://github.com/bempp/ndgrid.git", rev = "a116b6c98c1dfd8484f9be452f7844c7722441dd", features = ["serde"] }
+ndelement = { git="https://github.com/ignacia-fp/ndelement-for-rsrs.git", features = ["mpi"]}
+ndgrid = { git="https://github.com/ignacia-fp/ndgrid-for-rsrs.git", features = ["serde"] }
 rlst = { git = "https://github.com/linalg-rs/rlst.git", branch = "extend_abstract_operator", features = ["mpi"] }
-green-kernels = { git = "https://github.com/bempp/green-kernels.git", rev = "e01a482f070e09e114f12b2ea1a1b2c1064881bb", features = ["mpi"] }
-kifmm = { git = "https://github.com/bempp/kifmm.git", rev = "f2e34b99c290c66ebed31cc43d2ed2d8ce68831f", features = ["mpi"] }
+green-kernels = { git = "https://github.com/ignacia-fp/green-kernels-for-rsrs.git", features = ["mpi"] }
+kifmm = { git = "https://github.com/ignacia-fp/kifmm-for-rsrs.git", features = ["mpi"] }
 rand = "0.8"
 rand_chacha = "0.3"
 log = { version = "0.4", optional = true}
