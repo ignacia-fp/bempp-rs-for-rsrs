@@ -14,6 +14,8 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::process::Stdio;
 use tempfile::tempdir;
+use std::str::FromStr;
+use std::fmt::Debug;
 //use std::io::Write;
 use std::fs;
 
@@ -332,6 +334,7 @@ pub fn ellipsoid<T: RealScalar + Equivalence + std::str::FromStr, C: Communicato
     h: T,
     comm: &C,
 ) -> Result<ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>>, Box<dyn std::error::Error>>
+where <T as FromStr>::Err: Debug
 {
     let geo = ellipsoid_geo_string(r1, r2, r3, origin, h);
     let msh = msh_from_geo_string(&geo)?;
@@ -353,6 +356,7 @@ pub fn sphere<T: RealScalar + Equivalence + std::str::FromStr, C: Communicator>(
     h: T,
     comm: &C,
 ) -> Result<ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>>, Box<dyn std::error::Error>>
+where <T as FromStr>::Err: Debug
 {
     ellipsoid(r, r, r, origin, h, comm)
 }
