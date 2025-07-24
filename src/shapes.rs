@@ -13,7 +13,7 @@ use num::Float;
 use std::path::PathBuf;
 use std::process::Command;
 use tempfile::tempdir;
-use std::process::Stdio;
+//use std::process::Stdio;
 //use std::io::Write;
 use std::fs;
 
@@ -296,7 +296,7 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
 
     let gmsh_cmd = std::env::var("GMSH_PATH").unwrap_or_else(|_| "gmsh".to_string());
 
-    let status = Command::new("gmsh")
+    let status = Command::new(gmsh_cmd)
     .args([
         "-2",
         "-format", "msh4", // or just omit to default to 4.1
