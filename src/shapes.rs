@@ -302,7 +302,7 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
         .args([
             "-2",
             "-format",
-            "msh2",
+            "msh4",
             "-ascii",
             "-o",
             msh_path.to_str().unwrap(),
