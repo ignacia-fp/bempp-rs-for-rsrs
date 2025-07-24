@@ -13,6 +13,7 @@ use num::Float;
 use std::path::PathBuf;
 use std::process::Command;
 use tempfile::tempdir;
+use std::process::Stdio;
 //use std::io::Write;
 use std::fs;
 
