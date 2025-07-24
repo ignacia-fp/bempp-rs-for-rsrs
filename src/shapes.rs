@@ -12,8 +12,8 @@ use ndgrid::{
 use num::Float;
 use std::path::PathBuf;
 use std::process::Command;
-use tempfile::tempdir;
 use std::process::Stdio;
+use tempfile::tempdir;
 //use std::io::Write;
 use std::fs;
 
@@ -311,6 +311,13 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
         .stdout(Stdio::null()) // <-- silence stdout
         .stderr(Stdio::null()) // <-- silence stderr
         .status()?;
+
+    println!(
+        "Running: {} -2 -format msh2 -ascii -o {} {}",
+        gmsh_cmd,
+        msh_path.to_str().unwrap(),
+        geo_path.to_str().unwrap()
+    );
 
     if !status.success() {
         return Err("gmsh failed to generate mesh".into());
