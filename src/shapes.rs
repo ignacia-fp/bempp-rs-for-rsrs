@@ -296,13 +296,16 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
     let gmsh_cmd = std::env::var("GMSH_PATH").unwrap_or_else(|_| "gmsh".to_string());
 
     let status = Command::new(gmsh_cmd)
-        .arg("-2")
-        .arg(&geo_path)
-        .arg("-o")
-        .arg(&msh_path)
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status()?;
+    .arg("-2")
+    .arg(&geo_path)
+    .arg("-format")
+    .arg("msh2")  // Specify MSH format version 2
+    .arg("-ascii") // Ensure it's ASCII, not binary
+    .arg("-o")
+    .arg(&msh_path)
+    .stdout(Stdio::null())
+    .stderr(Stdio::null())
+    .status()?;
 
     if !status.success() {
         return Err("gmsh failed to generate mesh".into());
