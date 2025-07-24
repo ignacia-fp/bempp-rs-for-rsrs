@@ -232,7 +232,6 @@ pub fn screen_quadrilaterals<T: RealScalar + Equivalence, C: Communicator>(
 
 pub fn ellipsoid_geo_string<T: RealScalar>(r1: T, r2: T, r3: T, origin: (T, T, T), h: T) -> String {
     let stub = r#"
-Mesh.MshFileVersion = 4.1;
 
 Point(1) = {orig0,orig1,orig2,cl};
 Point(2) = {orig0+r1,orig1,orig2,cl};
