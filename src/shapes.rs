@@ -290,6 +290,7 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
     let mut geo_file = NamedTempFile::new()?;
     write!(geo_file, "{}", geo_string)?;
     let geo_path = geo_file.path().to_path_buf();
+    println!("Gmsh geometry file created at: {}", geo_path.display());
     let msh_path = geo_path.with_extension("msh");
 
     let gmsh_cmd = std::env::var("GMSH_PATH").unwrap_or_else(|_| "gmsh".to_string());
@@ -322,6 +323,7 @@ pub fn ellipsoid<T: RealScalar + Equivalence + std::str::FromStr, C: Communicato
     let geo = ellipsoid_geo_string(r1, r2, r3, origin, h);
     let msh = msh_from_geo_string(&geo)?;
     let mut b = SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, 1));
+    println!("Importing mesh from: {}", msh.display());
     b.import_from_gmsh(msh.to_str().ok_or("Invalid mesh path")?);
     fs::remove_file(&msh)?; // Clean up the msh file after import
     let grid = b.create_parallel_grid(comm, 0);
