@@ -5,11 +5,16 @@ use std::collections::HashMap;
 use mpi::traits::{Communicator, Equivalence};
 use ndelement::{ciarlet::CiarletElement, types::ReferenceCellType};
 use ndgrid::{
-    traits::{Builder, ParallelBuilder},
+    traits::{Builder, ParallelBuilder, GmshImport},
     types::{GraphPartitioner, RealScalar},
     ParallelGridImpl, SingleElementGrid, SingleElementGridBuilder,
 };
 use num::Float;
+use std::path::PathBuf;
+use std::process::Command;
+use tempfile::NamedTempFile;
+use std::io::Write;
+use std::fs;
 
 /// Create a regular sphere
 ///
@@ -220,4 +225,112 @@ pub fn screen_quadrilaterals<T: RealScalar + Equivalence, C: Communicator>(
         SingleElementGridBuilder::new(3, (ReferenceCellType::Quadrilateral, 1))
             .create_parallel_grid(comm, 0)
     }
+}
+
+/// Create a string for a Gmsh geometry file that describes an ellipsoid
+
+pub fn ellipsoid_geo_string(r1: f64, r2: f64, r3: f64, origin: (f64, f64, f64), h: f64) -> String {
+    let stub = r#"
+Point(1) = {orig0,orig1,orig2,cl};
+Point(2) = {orig0+r1,orig1,orig2,cl};
+Point(3) = {orig0,orig1+r2,orig2,cl};
+Ellipse(1) = {2,1,2,3};
+Point(4) = {orig0-r1,orig1,orig2,cl};
+Point(5) = {orig0,orig1-r2,orig2,cl};
+Ellipse(2) = {3,1,4,4};
+Ellipse(3) = {4,1,4,5};
+Ellipse(4) = {5,1,2,2};
+Point(6) = {orig0,orig1,orig2-r3,cl};
+Point(7) = {orig0,orig1,orig2+r3,cl};
+Ellipse(5) = {3,1,3,6};
+Ellipse(6) = {6,1,5,5};
+Ellipse(7) = {5,1,5,7};
+Ellipse(8) = {7,1,3,3};
+Ellipse(9) = {2,1,2,7};
+Ellipse(10) = {7,1,4,4};
+Ellipse(11) = {4,1,4,6};
+Ellipse(12) = {6,1,2,2};
+Line Loop(13) = {2,8,-10};
+Ruled Surface(14) = {13};
+Line Loop(15) = {10,3,7};
+Ruled Surface(16) = {15};
+Line Loop(17) = {-8,-9,1};
+Ruled Surface(18) = {17};
+Line Loop(19) = {-11,-2,5};
+Ruled Surface(20) = {19};
+Line Loop(21) = {-5,-12,-1};
+Ruled Surface(22) = {21};
+Line Loop(23) = {-3,11,6};
+Ruled Surface(24) = {23};
+Line Loop(25) = {-7,4,9};
+Ruled Surface(26) = {25};
+Line Loop(27) = {-4,12,-6};
+Ruled Surface(28) = {27};
+Surface Loop(29) = {28,26,16,14,20,24,22,18};
+Volume(30) = {29};
+Physical Surface(10) = {28,26,16,14,20,24,22,18};
+Mesh.Algorithm = 6;
+"#;
+
+    format!(
+        "r1 = {r1};\nr2 = {r2};\nr3 = {r3};\norig0 = {x};\norig1 = {y};\norig2 = {z};\ncl = {h};\n{stub}",
+        r1 = r1,
+        r2 = r2,
+        r3 = r3,
+        x = origin.0,
+        y = origin.1,
+        z = origin.2,
+        h = h,
+        stub = stub
+    )
+}
+
+/// Writes geo string to a temp file, calls Gmsh, returns path to .msh file
+pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let mut geo_file = NamedTempFile::new()?;
+    write!(geo_file, "{}", geo_string)?;
+    let geo_path = geo_file.path().to_path_buf();
+    let msh_path = geo_path.with_extension("msh");
+
+    let gmsh_cmd = std::env::var("GMSH_PATH").unwrap_or_else(|_| "gmsh".to_string());
+
+    let status = Command::new(gmsh_cmd)
+        .arg("-2")
+        .arg(&geo_path)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()?;
+
+    if !status.success() {
+        return Err("gmsh failed to generate mesh".into());
+    }
+
+    drop(geo_file); // tempfile will clean up geo file
+    Ok(msh_path)
+}
+
+/// Create an ellipsoid grid with triangle cells
+pub fn ellipsoid(
+    r1: f64,
+    r2: f64,
+    r3: f64,
+    origin: (f64, f64, f64),
+    h: f64,
+) -> Result<SingleElementGrid<f64, CiarletElement<f64>>, Box<dyn std::error::Error>> {
+    let geo = ellipsoid_geo_string(r1, r2, r3, origin, h);
+    let msh = msh_from_geo_string(&geo)?;
+    let mut b = SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, 1));
+    b.import_from_gmsh(msh.to_str().ok_or("Invalid mesh path")?);
+    fs::remove_file(&msh)?; // Clean up the msh file after import
+    let grid = b.create_grid();
+    Ok(grid)
+}
+
+/// Create a sphere grid with triangle cells
+pub fn sphere(
+    r: f64,
+    origin: (f64, f64, f64),
+    h: f64,
+) -> Result<SingleElementGrid<f64, CiarletElement<f64>>, Box<dyn std::error::Error>> {
+    ellipsoid(r, r, r, origin, h)
 }
