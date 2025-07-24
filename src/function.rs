@@ -805,7 +805,7 @@ impl<Space: FunctionSpaceTrait> AsApply for SpaceEvaluator<'_, Space> {
         x: rlst::Element<ContainerIn>,
         beta: <Self::Range as rlst::LinearSpace>::F,
         mut y: rlst::Element<ContainerOut>,
-        _trans_mode: rlst::TransMode
+        _trans_mode: rlst::TransMode,
     ) {
         y *= beta;
 

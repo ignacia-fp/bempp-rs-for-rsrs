@@ -147,9 +147,11 @@ fn main() {
             .copy_from_slice(gathered_charges.data_mut());
 
         // Now apply the fmm evaluator
-        let fmm_result_on_root = fmm_evaluator_on_root.apply(charges_on_root.r(), rlst::TransMode::NoTrans);
+        let fmm_result_on_root =
+            fmm_evaluator_on_root.apply(charges_on_root.r(), rlst::TransMode::NoTrans);
         // Now apply the dense evaluator
-        let dense_result_on_root = evaluator_dense_on_root.apply(charges_on_root.r(), rlst::TransMode::NoTrans);
+        let dense_result_on_root =
+            evaluator_dense_on_root.apply(charges_on_root.r(), rlst::TransMode::NoTrans);
 
         // Now compare the dense result on root with the global dense result.
 

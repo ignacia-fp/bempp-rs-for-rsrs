@@ -400,7 +400,7 @@ where
         x: Element<ContainerIn>,
         beta: <Self::Range as rlst::LinearSpace>::F,
         mut y: Element<ContainerOut>,
-        _trans_mode: rlst::TransMode
+        _trans_mode: rlst::TransMode,
     ) {
         let tdim = self.source_space.grid().local_grid().topology_dim();
         let gdim = self.source_space.grid().local_grid().geometry_dim();

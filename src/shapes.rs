@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use mpi::traits::{Communicator, Equivalence};
 use ndelement::{ciarlet::CiarletElement, types::ReferenceCellType};
 use ndgrid::{
-    traits::{Builder, ParallelBuilder, GmshImport},
+    traits::{Builder, GmshImport, ParallelBuilder},
     types::{GraphPartitioner, RealScalar},
     ParallelGridImpl, SingleElementGrid, SingleElementGridBuilder,
 };
@@ -13,7 +13,7 @@ use num::Float;
 use std::path::PathBuf;
 use std::process::Command;
 use tempfile::tempdir;
-//use std::process::Stdio;
+use std::process::Stdio;
 //use std::io::Write;
 use std::fs;
 
@@ -232,6 +232,8 @@ pub fn screen_quadrilaterals<T: RealScalar + Equivalence, C: Communicator>(
 
 pub fn ellipsoid_geo_string<T: RealScalar>(r1: T, r2: T, r3: T, origin: (T, T, T), h: T) -> String {
     let stub = r#"
+Mesh.MshFileVersion = 4.1;
+
 Point(1) = {orig0,orig1,orig2,cl};
 Point(2) = {orig0+r1,orig1,orig2,cl};
 Point(3) = {orig0,orig1+r2,orig2,cl};
@@ -271,8 +273,8 @@ Surface Loop(29) = {28,26,16,14,20,24,22,18};
 Volume(30) = {29};
 Physical Surface(10) = {28,26,16,14,20,24,22,18};
 Mesh.Algorithm = 6;
+Mesh 3;
 "#;
-
     format!(
         "r1 = {r1};\nr2 = {r2};\nr3 = {r3};\norig0 = {x};\norig1 = {y};\norig2 = {z};\ncl = {h};\n{stub}",
         r1 = r1,
@@ -297,13 +299,18 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
     let gmsh_cmd = std::env::var("GMSH_PATH").unwrap_or_else(|_| "gmsh".to_string());
 
     let status = Command::new(gmsh_cmd)
-    .args([
-        "-2",
-        "-format", "msh4", // or just omit to default to 4.1
-        "-o", msh_path.to_str().unwrap(),
-        geo_path.to_str().unwrap(),
-    ])
-    .status()?;
+        .args([
+            "-2",
+            "-format",
+            "msh4",
+            "-ascii",
+            "-o",
+            msh_path.to_str().unwrap(),
+            geo_path.to_str().unwrap(),
+        ])
+        .stdout(Stdio::null()) // <-- silence stdout
+        .stderr(Stdio::null()) // <-- silence stderr
+        .status()?;
 
     if !status.success() {
         return Err("gmsh failed to generate mesh".into());
@@ -324,12 +331,15 @@ pub fn ellipsoid<T: RealScalar + Equivalence + std::str::FromStr, C: Communicato
     origin: (T, T, T),
     h: T,
     comm: &C,
-) -> Result<ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>>, Box<dyn std::error::Error>> {
-
+) -> Result<ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>>, Box<dyn std::error::Error>>
+{
     let geo = ellipsoid_geo_string(r1, r2, r3, origin, h);
     let msh = msh_from_geo_string(&geo)?;
     let mut b = SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, 1));
-    println!("Importing mesh from: {:?}", msh.to_str().ok_or("Invalid mesh path")?);
+    println!(
+        "Importing mesh from: {:?}",
+        msh.to_str().ok_or("Invalid mesh path")?
+    );
     b.import_from_gmsh(msh.to_str().ok_or("Invalid mesh path")?);
     fs::remove_file(&msh)?; // Clean up the msh file after import
     let grid = b.create_parallel_grid(comm, 0);
@@ -342,6 +352,7 @@ pub fn sphere<T: RealScalar + Equivalence + std::str::FromStr, C: Communicator>(
     origin: (T, T, T),
     h: T,
     comm: &C,
-) -> Result<ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>>, Box<dyn std::error::Error>> {
+) -> Result<ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>>, Box<dyn std::error::Error>>
+{
     ellipsoid(r, r, r, origin, h, comm)
 }

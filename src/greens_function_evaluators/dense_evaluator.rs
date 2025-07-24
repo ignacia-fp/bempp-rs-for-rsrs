@@ -1,9 +1,9 @@
 //! A dense evaluator for Green's functions.
 
-use std::rc::Rc;
-use rlst::prelude::*;
 use green_kernels::{traits::DistributedKernelEvaluator, types::GreenKernelEvalType};
 use mpi::traits::{Communicator, Equivalence};
+use rlst::prelude::*;
+use std::rc::Rc;
 /*use rlst::{
     operator::{interface::DistributedArrayVectorSpace, Operator},
     rlst_dynamic_array1, AsApply, IndexLayout, OperatorBase, RawAccess, RawAccessMut, RlstScalar, TransMode,
@@ -148,7 +148,7 @@ where
         x: rlst::Element<ContainerIn>,
         beta: <Self::Range as rlst::LinearSpace>::F,
         mut y: rlst::Element<ContainerOut>,
-        _trans_mode: TransMode
+        _trans_mode: TransMode,
     ) {
         y.scale_inplace(beta);
         let mut charges = rlst_dynamic_array1!(

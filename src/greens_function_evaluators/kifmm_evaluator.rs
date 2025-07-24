@@ -229,7 +229,7 @@ where
         x: Element<ContainerIn>,
         beta: <Self::Range as rlst::LinearSpace>::F,
         mut y: Element<ContainerOut>,
-        _trans_mode: rlst::TransMode
+        _trans_mode: rlst::TransMode,
     ) {
         let mut x_permuted = rlst_dynamic_array1![T, [self.n_permuted_sources]];
         let mut y_permuted = rlst_dynamic_array1![T, [self.n_permuted_targets]];
