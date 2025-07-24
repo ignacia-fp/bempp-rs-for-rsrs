@@ -323,7 +323,7 @@ pub fn ellipsoid<T: RealScalar + Equivalence + std::str::FromStr, C: Communicato
     let geo = ellipsoid_geo_string(r1, r2, r3, origin, h);
     let msh = msh_from_geo_string(&geo)?;
     let mut b = SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, 1));
-    println!("Importing mesh from: {}", msh.display());
+    println!("Importing mesh from: {:?}", msh.to_str().ok_or("Invalid mesh path")?);
     b.import_from_gmsh(msh.to_str().ok_or("Invalid mesh path")?);
     fs::remove_file(&msh)?; // Clean up the msh file after import
     let grid = b.create_parallel_grid(comm, 0);
