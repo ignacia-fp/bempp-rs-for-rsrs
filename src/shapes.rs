@@ -345,9 +345,7 @@ where <T as FromStr>::Err: Debug
     );
     b.import_from_gmsh(msh.to_str().ok_or("Invalid mesh path")?);
     fs::remove_file(&msh)?; // Clean up the msh file after import
-    println!("1");
-    let grid = b.create_parallel_grid(comm, 0);
-    println!("2");
+    let grid = b.create_parallel_grid_root(comm, GraphPartitioner::None);
     Ok(grid)
 }
 
