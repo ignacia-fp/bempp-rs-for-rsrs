@@ -12,8 +12,8 @@ use ndgrid::{
 use num::Float;
 use std::path::PathBuf;
 use std::process::Command;
-use tempfile::NamedTempFile;
-use std::io::Write;
+use tempfile::tempdir;
+//use std::io::Write;
 use std::fs;
 
 /// Create a regular sphere
@@ -287,17 +287,19 @@ Mesh.Algorithm = 6;
 
 /// Writes geo string to a temp file, calls Gmsh, returns path to .msh file
 pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut geo_file = NamedTempFile::new()?;
-    write!(geo_file, "{}", geo_string)?;
-    let geo_path = geo_file.path().to_path_buf();
-    println!("Gmsh geometry file created at: {}", geo_path.display());
-    let msh_path = geo_path.with_extension("msh");
+    let dir = tempdir()?; // This will clean itself up when dropped
+    let geo_path = dir.path().join("mesh.geo");
+    let msh_path = dir.path().join("mesh.msh");
+
+    std::fs::write(&geo_path, geo_string)?;
 
     let gmsh_cmd = std::env::var("GMSH_PATH").unwrap_or_else(|_| "gmsh".to_string());
 
     let status = Command::new(gmsh_cmd)
         .arg("-2")
         .arg(&geo_path)
+        .arg("-o")
+        .arg(&msh_path)
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .status()?;
@@ -306,8 +308,11 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
         return Err("gmsh failed to generate mesh".into());
     }
 
-    drop(geo_file); // tempfile will clean up geo file
-    Ok(msh_path)
+    // Clone the .msh file into memory before tempdir is dropped
+    let msh_bytes = std::fs::read(&msh_path)?;
+    let out_path = std::env::temp_dir().join("tmp_mesh.msh");
+    std::fs::write(&out_path, msh_bytes)?;
+    Ok(out_path)
 }
 
 /// Create an ellipsoid grid with triangle cells
