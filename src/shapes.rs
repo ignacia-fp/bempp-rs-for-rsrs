@@ -229,7 +229,7 @@ pub fn screen_quadrilaterals<T: RealScalar + Equivalence, C: Communicator>(
 
 /// Create a string for a Gmsh geometry file that describes an ellipsoid
 
-pub fn ellipsoid_geo_string(r1: f64, r2: f64, r3: f64, origin: (f64, f64, f64), h: f64) -> String {
+pub fn ellipsoid_geo_string<T: RealScalar>(r1: T, r2: T, r3: T, origin: (T, T, T), h: T) -> String {
     let stub = r#"
 Point(1) = {orig0,orig1,orig2,cl};
 Point(2) = {orig0+r1,orig1,orig2,cl};
@@ -310,27 +310,30 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
 }
 
 /// Create an ellipsoid grid with triangle cells
-pub fn ellipsoid(
-    r1: f64,
-    r2: f64,
-    r3: f64,
-    origin: (f64, f64, f64),
-    h: f64,
-) -> Result<SingleElementGrid<f64, CiarletElement<f64>>, Box<dyn std::error::Error>> {
+pub fn ellipsoid<T: RealScalar + Equivalence + std::str::FromStr, C: Communicator>(
+    r1: T,
+    r2: T,
+    r3: T,
+    origin: (T, T, T),
+    h: T,
+    comm: &C,
+) -> Result<ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>>, Box<dyn std::error::Error>> {
+
     let geo = ellipsoid_geo_string(r1, r2, r3, origin, h);
     let msh = msh_from_geo_string(&geo)?;
     let mut b = SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, 1));
     b.import_from_gmsh(msh.to_str().ok_or("Invalid mesh path")?);
     fs::remove_file(&msh)?; // Clean up the msh file after import
-    let grid = b.create_grid();
+    let grid = b.create_parallel_grid(comm, 0);
     Ok(grid)
 }
 
 /// Create a sphere grid with triangle cells
-pub fn sphere(
-    r: f64,
-    origin: (f64, f64, f64),
-    h: f64,
-) -> Result<SingleElementGrid<f64, CiarletElement<f64>>, Box<dyn std::error::Error>> {
-    ellipsoid(r, r, r, origin, h)
+pub fn sphere<T: RealScalar + Equivalence + std::str::FromStr, C: Communicator>(
+    r: T,
+    origin: (T, T, T),
+    h: T,
+    comm: &C,
+) -> Result<ParallelGridImpl<C, SingleElementGrid<T, CiarletElement<T>>>, Box<dyn std::error::Error>> {
+    ellipsoid(r, r, r, origin, h, comm)
 }
