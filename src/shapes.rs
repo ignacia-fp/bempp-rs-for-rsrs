@@ -112,10 +112,14 @@ pub fn regular_sphere<T: RealScalar + Equivalence, C: Communicator>(
             b.add_cell(i, v);
         }
 
-        b.create_parallel_grid_root(comm, GraphPartitioner::None)
+        let g = b.create_parallel_grid_root(comm, GraphPartitioner::None);
+        g.export_as_gmsh("test_regular_sphere.msh");
+        g
     } else {
-        SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, degree))
-            .create_parallel_grid(comm, 0)
+        let g = SingleElementGridBuilder::new(3, (ReferenceCellType::Triangle, degree))
+            .create_parallel_grid(comm, 0);
+        g.export_as_gmsh("test_regular_sphere.msh");
+        g
     }
 }
 
