@@ -298,6 +298,13 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
 
     let gmsh_cmd = std::env::var("GMSH_PATH").unwrap_or_else(|_| "gmsh".to_string());
 
+    println!(
+        "Running: {} -2 -format msh2 -ascii -o {} {}",
+        &gmsh_cmd,
+        msh_path.to_str().unwrap(),
+        geo_path.to_str().unwrap()
+    );
+
     let status = Command::new(gmsh_cmd)
         .args([
             "-2",
@@ -312,12 +319,7 @@ pub fn msh_from_geo_string(geo_string: &str) -> Result<PathBuf, Box<dyn std::err
         .stderr(Stdio::null()) // <-- silence stderr
         .status()?;
 
-    println!(
-        "Running: {} -2 -format msh2 -ascii -o {} {}",
-        gmsh_cmd,
-        msh_path.to_str().unwrap(),
-        geo_path.to_str().unwrap()
-    );
+    
 
     if !status.success() {
         return Err("gmsh failed to generate mesh".into());
