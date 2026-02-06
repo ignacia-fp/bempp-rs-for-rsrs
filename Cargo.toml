@@ -30,19 +30,19 @@ bempp-distributed-tools = { git = "https://github.com/bempp/distributed_tools.gi
 itertools = "0.13.*"
 mpi = { version = "0.8.*", features = ["complex"] }
 num = "0.4"
-ndelement = { git = "https://github.com/ignacia-fp/ndelement-for-rsrs.git", features = [
+ndelement = { git = "https://github.com/ignacia-fp/ndelement-for-rsrs.git", branch = "no-arpack", features = [
     "mpi",
 ] }
-ndgrid = { git = "https://github.com/ignacia-fp/ndgrid-for-rsrs.git", features = [
+ndgrid = { git = "https://github.com/ignacia-fp/ndgrid-for-rsrs.git", branch = "no-arpack", features = [
     "serde",
 ] }
-rlst = { git = "https://github.com/ignacia-fp/rlst.git", branch = "extend_abstract_operator", features = [
+rlst = { git = "https://github.com/ignacia-fp/rlst.git", branch = "rsrs-rlst-wo-arpack-dep", features = [
     "mpi",
 ] }
-green-kernels = { git = "https://github.com/ignacia-fp/green-kernels-for-rsrs.git", features = [
+green-kernels = { git = "https://github.com/ignacia-fp/green-kernels-for-rsrs.git", branch = "no-arpack", features = [
     "mpi",
 ] }
-kifmm = { git = "https://github.com/ignacia-fp/kifmm-for-rsrs.git", features = [
+kifmm = { git = "https://github.com/ignacia-fp/kifmm-for-rsrs.git", branch = "no-arpack", features = [
     "mpi",
 ] }
 rand = "0.8"
