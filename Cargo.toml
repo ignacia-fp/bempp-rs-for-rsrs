@@ -50,6 +50,9 @@ rand_chacha = "0.3"
 log = { version = "0.4", optional = true }
 rayon = "1.9"
 tempfile = "3.20.0"
+# c-api-tools-macros accepts any syn >=2, but is not compatible with syn 3.
+# Keep native Python/C-API builds on the API version it was written against.
+syn = "=2.0.119"
 
 [dev-dependencies]
 approx = "0.5"
@@ -61,6 +64,9 @@ env_logger = "0.11"
 [build-dependencies]
 cbindgen = "0.27.0"
 cc = "=1.2.7"
+
+[patch.crates-io]
+c-api-tools-macros = { path = "python-operators/vendor/c-api-tools-macros" }
 
 
 [[bench]]

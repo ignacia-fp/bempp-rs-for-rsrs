@@ -1,0 +1,16 @@
+[build-system]
+requires = ["maturin>=1.7,<2"]
+build-backend = "maturin"
+
+[project]
+name = "bempp-rs-operators"
+version = "0.1.0.dev0"
+description = "Persistent high-level Bempp-rs operators for Python"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26,<3"]
+
+[tool.maturin]
+module-name = "bempp_rs_operators._bempp_rs_operators"
+python-source = "python"
+manifest-path = "Cargo.toml"
+

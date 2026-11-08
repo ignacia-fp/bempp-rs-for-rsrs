@@ -1,0 +1,25 @@
+[package]
+name = "bempp-rs-operators-python"
+version = "0.1.0-dev"
+edition = "2021"
+publish = false
+
+[lib]
+name = "_bempp_rs_operators"
+crate-type = ["cdylib"]
+
+[dependencies]
+bempp = { path = ".." }
+green-kernels = { git = "https://github.com/ignacia-fp/green-kernels-for-rsrs.git", features = ["mpi"] }
+mpi = { version = "0.8.*", features = ["complex"] }
+ndelement = { git = "https://github.com/ignacia-fp/ndelement-for-rsrs.git", features = ["mpi"] }
+numpy = "0.22"
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py310"] }
+rlst = { git = "https://github.com/ignacia-fp/rlst.git", branch = "extend_abstract_operator", features = ["mpi"] }
+# c-api-tools-macros currently declares `syn >=2`, which lets a fresh
+# lockfile select the source-incompatible syn 3 release. Keep this extension
+# on the syn 2 API used by that macro crate.
+syn = "=2.0.119"
+
+[patch.crates-io]
+c-api-tools-macros = { path = "vendor/c-api-tools-macros" }
