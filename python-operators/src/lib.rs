@@ -65,6 +65,7 @@ fn operator_worker(
     refinement_level: u32,
     function_space_degree: usize,
     quadrature_degree: usize,
+    singular_quadrature_degree: usize,
     local_tree_depth: usize,
     global_tree_depth: usize,
     expansion_order: usize,
@@ -87,6 +88,10 @@ fn operator_worker(
 
     let mut options = BoundaryAssemblerOptions::default();
     options.set_regular_quadrature_degree(ReferenceCellType::Triangle, quadrature_degree);
+    options.set_singular_quadrature_degree(
+        (ReferenceCellType::Triangle, ReferenceCellType::Triangle),
+        singular_quadrature_degree,
+    );
     let quadrature = options.get_regular_quadrature_rule(ReferenceCellType::Triangle);
     let quadrature_points = quadrature.points.iter().copied().collect::<Vec<f64>>();
 
@@ -163,6 +168,7 @@ impl LaplaceSingleLayer {
         refinement_level,
         function_space_degree=0,
         quadrature_degree=6,
+        singular_quadrature_degree=4,
         local_tree_depth=1,
         global_tree_depth=6,
         expansion_order=6,
@@ -171,6 +177,7 @@ impl LaplaceSingleLayer {
         refinement_level: u32,
         function_space_degree: usize,
         quadrature_degree: usize,
+        singular_quadrature_degree: usize,
         local_tree_depth: usize,
         global_tree_depth: usize,
         expansion_order: usize,
@@ -186,6 +193,7 @@ impl LaplaceSingleLayer {
                 refinement_level,
                 function_space_degree,
                 quadrature_degree,
+                singular_quadrature_degree,
                 local_tree_depth,
                 global_tree_depth,
                 expansion_order,
